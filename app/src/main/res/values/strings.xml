@@ -6,4 +6,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile">Profile</string>
+    <string name="desc_first">Description of first page</string>
+    <string name="desc_second">Description of second page</string>
+    <string name="desc_third">Description of third page</string>
 </resources>

@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.geek.android2_1_taskapp.R;
+import com.geek.android2_1_taskapp.models.Task;
 
 public class TaskFragment extends Fragment {
 
@@ -37,10 +39,14 @@ public class TaskFragment extends Fragment {
 
     private void save() {
         String text = editText.getText().toString();
+        if (text.isEmpty())return;
+        long createAt = System.currentTimeMillis();
+        Task task = new Task(text, createAt);
         Bundle bundle = new Bundle();
-        bundle.putString("text", text);
+        bundle.putSerializable("task", task);
         getParentFragmentManager().setFragmentResult("task", bundle);
         close();
+
     }
 
     private void close() {
