@@ -20,8 +20,6 @@ import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 public class BoardFragment extends Fragment implements BoardAdapter.Finish {
 
-    private Button skip;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -32,7 +30,6 @@ public class BoardFragment extends Fragment implements BoardAdapter.Finish {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        skip = view.findViewById(R.id.btnSkip);
 
         DotsIndicator indicator = view.findViewById(R.id.dotsIndicator);
         ViewPager2 viewPager2 = view.findViewById(R.id.viewPager);
