@@ -3,16 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="26dp"
+    android:gravity="center"
     tools:context=".ui.task.TaskFragment">
 
     <EditText
         android:id="@+id/editText"
         android:hint="Enter task"
+        android:background="@drawable/bg_edit"
         android:inputType="textCapSentences"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:endIconMode="password_toggle"-->
+<!--        app:prefixText="+996"-->
+<!--        app:counterEnabled="true"-->
+<!--        app:counterMaxLength="60">-->
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:hint="type"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
+
     <Button
         android:id="@+id/btnSave"
         android:text="Save"

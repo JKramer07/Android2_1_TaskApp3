@@ -14,8 +14,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.geek.android2_1_taskapp.App;
 import com.geek.android2_1_taskapp.R;
 import com.geek.android2_1_taskapp.models.Task;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class TaskFragment extends Fragment {
 
@@ -40,8 +44,9 @@ public class TaskFragment extends Fragment {
     private void save() {
         String text = editText.getText().toString();
         if (text.isEmpty())return;
-        long createAt = System.currentTimeMillis();
-        Task task = new Task(text, createAt);
+        Task task = new Task(text);
+        App.getAppDatabase().taskDao().insert(task);
+        saveToFirestore(task);
         Bundle bundle = new Bundle();
         bundle.putSerializable("task", task);
         getParentFragmentManager().setFragmentResult("task", bundle);
@@ -49,8 +54,26 @@ public class TaskFragment extends Fragment {
 
     }
 
+    private void saveToFirestore(Task task) {
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .add(task)
+        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentReference> task) {
+                //progressbar
+                if (task.isSuccessful()) {
+                    close();
+                } else {
+                    task.getException().printStackTrace();
+                    Toast.makeText(requireContext(), "Error: "+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
     private void close() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigateUp();
+        navController.navigate(R.id.navigation_home);
     }
 }

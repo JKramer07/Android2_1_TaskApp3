@@ -5,17 +5,22 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.geek.android2_1_taskapp.App;
 import com.geek.android2_1_taskapp.R;
 import com.geek.android2_1_taskapp.interfaces.OnItemClickListener;
 import com.geek.android2_1_taskapp.models.Task;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
@@ -30,6 +35,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     public TaskAdapter(Context context) {
         this.context = context;
     }
+
+    public TaskAdapter(){}
 
     @NonNull
     @Override
@@ -47,23 +54,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             holder.itemView.setBackgroundResource(R.color.white);
         }
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                listener.onLongClick(list.get(position));
-                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-                dialog.setTitle("WARNING")
-                        .setMessage("Do you want to delete?")
-                        .setPositiveButton("Yes", (dialog1, which) -> {
-                            list.remove(position);
-                            notifyItemRemoved(position);
-                            Toast.makeText(context, "Item is Deleted", Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("No", (dialog1, which) -> {
-                            dialog1.cancel();
-                        }).show();
-                return true;
-            }
+        holder.itemView.setOnLongClickListener(v -> {
+            listener.onLongClick(list.get(position));
+            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+            dialog.setTitle("WARNING")
+                    .setMessage("Do you want to delete?")
+                    .setPositiveButton("Yes", (dialog1, which) -> {
+                        App.getAppDatabase().taskDao().delete(list.get(position));
+                        list.remove(position);
+                        notifyItemRemoved(position);
+                        Toast.makeText(context, "Item is Deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", (dialog1, which) -> {
+                        dialog1.cancel();
+                    }).show();
+            return true;
+        });
+
+        holder.itemView.setOnClickListener(v->{
+            listener.onClick(list.get(position));
         });
     }
 
@@ -72,20 +81,30 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         return list.size();
     }
 
+
+
+    public void addItems(List<Task> tasks){
+        list.addAll(tasks);
+        notifyDataSetChanged();
+    }
+
     public void addItem(Task task) {
         list.add(0, task);
         notifyItemInserted(list.indexOf(task));
     }
 
+    public void sortList(ArrayList<Task> tasks) {
+        list.addAll(tasks);
+        notifyItemChanged(list.indexOf(tasks));
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView text;
-        private TextView createAt;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.textTitle);
-//            createAt = itemView.findViewById(R.id.textDate);
         }
 
         public void onBind(Task task) {

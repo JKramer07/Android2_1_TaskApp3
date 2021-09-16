@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,12 +41,20 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-        navController.navigate(R.id.boardFragment);
+        Prefs prefs = new Prefs(this);
+        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+            navController.navigate(R.id.authFragment);
+        }
+        if (!prefs.isBoardShown())
+            navController.navigate(R.id.boardFragment);
+
 
         fragments.add(R.id.navigation_home);
         fragments.add(R.id.navigation_dashboard);
         fragments.add(R.id.navigation_notifications);
         fragments.add(R.id.navigation_profile);
+
+
 
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
@@ -72,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //метод, при нажатии "назад" = выход из приложения
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (destination.getId() == R.id.boardFragment){
-            finish();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        if (destination.getId() == R.id.boardFragment){
+//            finish();
+//        }
+//    }
 }

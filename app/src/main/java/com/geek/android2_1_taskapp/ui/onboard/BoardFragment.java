@@ -14,11 +14,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.geek.android2_1_taskapp.Prefs;
 import com.geek.android2_1_taskapp.R;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 public class BoardFragment extends Fragment implements BoardAdapter.Finish {
+
+    private Button skip;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,6 +37,7 @@ public class BoardFragment extends Fragment implements BoardAdapter.Finish {
 
         DotsIndicator indicator = view.findViewById(R.id.dotsIndicator);
         ViewPager2 viewPager2 = view.findViewById(R.id.viewPager);
+        skip = view.findViewById(R.id.btnSkip);
         BoardAdapter adapter = new BoardAdapter();
         viewPager2.setAdapter(adapter);
         indicator.setViewPager2(viewPager2);
@@ -46,7 +51,16 @@ public class BoardFragment extends Fragment implements BoardAdapter.Finish {
             }
         });
 
+        skip.setOnClickListener(v->{
+            close();
+        });
+    }
 
+    private void close() {
+//        Prefs prefs = new Prefs(requireContext());
+//        prefs.saveBoardState();
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigateUp();
     }
 
     @Override

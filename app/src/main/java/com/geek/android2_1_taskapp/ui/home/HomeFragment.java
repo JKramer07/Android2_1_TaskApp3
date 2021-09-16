@@ -4,6 +4,9 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,18 +21,19 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.geek.android2_1_taskapp.App;
 import com.geek.android2_1_taskapp.R;
 import com.geek.android2_1_taskapp.interfaces.OnItemClickListener;
 import com.geek.android2_1_taskapp.models.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment implements OnItemClickListener {
 
     private RecyclerView rv;
     private TaskAdapter adapter;
-    private ArrayList<String> list = new ArrayList<>();
     private AlertDialog.Builder dialog;
 
     @Override
@@ -37,17 +41,20 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         super.onCreate(savedInstanceState);
         adapter = new TaskAdapter(requireContext());
         dialog = new AlertDialog.Builder(requireContext());
-
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        rv = view.findViewById(R.id.homeRecycler);
+
+        roomInit();
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(v ->{
@@ -58,14 +65,24 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                 Task task = (Task) result.getSerializable("task");
                 adapter.addItem(task);
+
             }
         });
-        initList(view);
+
     }
 
-    private void initList(View view) {
-        rv = view.findViewById(R.id.homeRecycler);
+    private void roomInit() {
+        App.getAppDatabase().taskDao().getAll().observe(getViewLifecycleOwner(), new Observer<List<Task>>() {
+            @Override
+            public void onChanged(List<Task> tasks) {
+                initList(tasks);
+            }
+        });
+    }
+
+    private void initList(List<Task> list) {
         rv.setAdapter(adapter);
+        adapter.addItems(list);
         adapter.setListener(this);
     }
 
@@ -82,5 +99,29 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     @Override
     public void onLongClick(Task position) {
         dialog.show().dismiss();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        getActivity().getMenuInflater().inflate(R.menu.home_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.sort:
+                sortList();
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void sortList() {
+        App.getAppDatabase().taskDao().getAllByText().observe(getViewLifecycleOwner(), new Observer<List<Task>>() {
+            @Override
+            public void onChanged(List<Task> tasks) {
+                adapter.sortList((ArrayList<Task>) tasks);
+            }
+        });
     }
 }

@@ -13,25 +13,51 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.bumptech.glide.Glide;
+import com.geek.android2_1_taskapp.App;
+import com.geek.android2_1_taskapp.Prefs;
 import com.geek.android2_1_taskapp.R;
+import com.geek.android2_1_taskapp.models.Task;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragment extends Fragment {
 
     private CircleImageView image;
+    private EditText username;
+    private Prefs prefs;
+    private Button logOut;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        prefs = new Prefs(requireContext());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
@@ -39,9 +65,36 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         image = view.findViewById(R.id.imgOpen);
+        username = view.findViewById(R.id.etUsername);
+        logOut = view.findViewById(R.id.btnLogout);
+        signOut();
+
+//        image.setImageURI(prefs.getProfileImage());
+//        username.setText(prefs.getUsername());
+
+        //wrong
+//        username.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                prefs.putString("text", s.toString());
+//            }
+//        });
+
         image.setOnClickListener(v->{
             openImage();
         });
+
+
     }
 
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
@@ -50,9 +103,13 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK){
+                        //short version
+//                        image.setImageURI(result.getData().getData());
+
                         Intent data = result.getData();
                         Uri selectImage = data.getData();
                         image.setImageURI(selectImage);
+//                        prefs.setProfileImage(selectImage);
                     }
                 }
             }
@@ -60,9 +117,52 @@ public class ProfileFragment extends Fragment {
 
     private void openImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/");
+        intent.setType("image/*");
         activityLauncher.launch(intent);
     }
 
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        prefs.saveName(username.getText().toString());
+//    }
 
+        @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        getActivity().getMenuInflater().inflate(R.menu.profile_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        Prefs prefs = new Prefs(requireContext());
+        switch (item.getItemId()){
+            case R.id.history:
+//                prefs.putClearText();
+                App.getAppDatabase().taskDao().deleteAll();
+                username.setText("");
+                image.setImageURI(null);
+                App.getAppDatabase().taskDao().updateAll();
+
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void signOut(){
+        logOut.setOnClickListener(v->{
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
+            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
+            googleSignInClient.signOut();
+            FirebaseAuth.getInstance().signOut();
+            openAuth();
+        });
+    }
+
+    private void openAuth() {
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.authFragment);
+    }
 }

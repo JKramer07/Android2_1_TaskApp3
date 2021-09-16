@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="18dp">
 
-    <Button
-        android:id="@+id/btnSkip"
-        android:text="SKIP"
-        android:textColor="@color/light_grey"
-        android:background="@drawable/item_btn_style"
-        android:layout_alignParentEnd="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:src="@drawable/ic_launcher_background"
-        android:layout_marginTop="150dp"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lotti"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/onboardingaccount1"
+        android:layout_marginTop="60dp"
         android:layout_centerHorizontal="true"
-        android:layout_width="250dp"
-        android:layout_height="250dp"/>
+        android:layout_width="300dp"
+        android:layout_height="300dp"/>
 
     <TextView
         android:id="@+id/textPagerTitle"
         android:text="TITLE"
         android:textSize="28sp"
         android:layout_marginTop="64dp"
-        android:layout_below="@+id/imageView"
+        android:layout_below="@+id/lotti"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -45,7 +39,9 @@
     <Button
         android:id="@+id/btnStart"
         android:text="START"
-        android:layout_marginTop="100dp"
+        android:textColor="@color/white"
+        android:background="@drawable/bg_button"
+        android:layout_marginTop="70dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/textPagerDesc"
         android:layout_width="300dp"

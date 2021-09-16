@@ -1,18 +1,16 @@
 package com.geek.android2_1_taskapp.models;
 
 import java.io.Serializable;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+@Entity
 public class Task implements Serializable {
+
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+
     private String text;
-    private long createAt;
-
-    public long getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(long createAt) {
-        this.createAt = createAt;
-    }
 
     public String getText() {
         return text;
@@ -22,8 +20,19 @@ public class Task implements Serializable {
         this.text = text;
     }
 
-    public Task(String text, long createAt) {
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public Task(String text) {
         this.text = text;
-        this.createAt = createAt;
+    }
+
+    public Task() {
     }
 }
