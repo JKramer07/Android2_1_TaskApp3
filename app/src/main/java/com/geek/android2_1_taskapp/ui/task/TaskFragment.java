@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class TaskFragment extends Fragment {
 
     private EditText editText;
+    private  Task task;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,7 +36,11 @@ public class TaskFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        task = (Task) requireArguments().getSerializable("task");
         editText = view.findViewById(R.id.editText);
+        if (task != null){
+            editText.setText(task.getText());
+        }
         view.findViewById(R.id.btnSave).setOnClickListener(v ->{
             save();
         });
@@ -44,9 +49,16 @@ public class TaskFragment extends Fragment {
     private void save() {
         String text = editText.getText().toString();
         if (text.isEmpty())return;
-        Task task = new Task(text);
-        App.getAppDatabase().taskDao().insert(task);
-        saveToFirestore(task);
+
+        if (task == null){
+            Task task = new Task(text);
+            App.getAppDatabase().taskDao().insert(task);
+            saveToFirestore(task);
+        } else {
+            task.setText(text);
+            App.getAppDatabase().taskDao().update(task);
+        }
+
         Bundle bundle = new Bundle();
         bundle.putSerializable("task", task);
         getParentFragmentManager().setFragmentResult("task", bundle);

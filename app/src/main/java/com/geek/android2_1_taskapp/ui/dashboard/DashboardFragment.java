@@ -1,5 +1,6 @@
 package com.geek.android2_1_taskapp.ui.dashboard;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.geek.android2_1_taskapp.R;
+import com.geek.android2_1_taskapp.interfaces.OnItemClickListener;
 import com.geek.android2_1_taskapp.models.Task;
 import com.geek.android2_1_taskapp.ui.home.TaskAdapter;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,12 +25,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class DashboardFragment extends Fragment {
+public class DashboardFragment extends Fragment implements OnItemClickListener {
     private RecyclerView rv;
     private TaskAdapter adapter;
     private ProgressBar progressBar;
+    private Task task;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +53,24 @@ public class DashboardFragment extends Fragment {
         initList();
 //        getData();
         getDataLive();
+        deleteDataLive();
+    }
+
+    private void deleteDataLive() {
+
+    }
+
+    private void deleteItem(int position) {
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .document()
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        adapter.removeItem(position);
+                    }
+                });
     }
 
     private void getDataLive() {
@@ -83,5 +105,24 @@ public class DashboardFragment extends Fragment {
                         progressBar.setVisibility(View.GONE);
                     }
                 });
+    }
+
+    @Override
+    public void onClick(int position) {
+
+    }
+
+    @Override
+    public void onLongClick(int position) {
+        task = adapter.getItem(position);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(requireContext());
+        dialog.setTitle("Warning!")
+                .setMessage("Delete?")
+                .setPositiveButton("Yes", (dialog1, which) -> {
+                    deleteItem(position);
+                })
+                .setNegativeButton("No", (dialog1, which) -> {
+                    dialog1.cancel();
+                }).show().dismiss();
     }
 }

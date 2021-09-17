@@ -73,8 +73,8 @@ public class ProfileFragment extends Fragment {
         logOut = view.findViewById(R.id.btnLogout);
         signOut();
 
-        String text = username.getText().toString();
-        Task utask = new Task(text);
+        String txt = username.getText().toString();
+        Task utask = new Task(txt);
         App.getAppDatabase().taskDao().insert(utask);
         saveNameToFireStore(utask);
 

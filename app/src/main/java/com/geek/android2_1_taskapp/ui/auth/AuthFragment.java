@@ -92,13 +92,11 @@ public class AuthFragment extends Fragment {
             });
 
     private void signIn(GoogleSignInAccount account) {
-        //progressbar visible
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         FirebaseAuth.getInstance().signInWithCredential(credential)
         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                //progressbar gone
                 if (task.isSuccessful()){
                     close();
                 } else {

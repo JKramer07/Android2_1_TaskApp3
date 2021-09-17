@@ -25,14 +25,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
     private ArrayList<Task> list = new ArrayList<>();
     private OnItemClickListener listener;
-    private Context context;
 
     public void setListener(OnItemClickListener listener) {
         this.listener = listener;
-    }
-
-    public TaskAdapter(Context context) {
-        this.context = context;
     }
 
     public TaskAdapter(){}
@@ -52,44 +47,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         } else {
             holder.itemView.setBackgroundResource(R.color.white);
         }
-
-        holder.itemView.setOnLongClickListener(v -> {
-            listener.onLongClick(list.get(position));
-            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-            dialog.setTitle("WARNING")
-                    .setMessage("Do you want to delete?")
-                    .setPositiveButton("Yes", (dialog1, which) -> {
-                        App.getAppDatabase().taskDao().delete(list.get(position));
-                        list.remove(position);
-                        notifyItemRemoved(position);
-                        deleteFromFireStore(position);
-                        Toast.makeText(context, "Item is Deleted", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", (dialog1, which) -> {
-                        dialog1.cancel();
-                    }).show();
-            return true;
-        });
-
-        holder.itemView.setOnClickListener(v->{
-            listener.onClick(list.get(position));
-        });
-    }
-
-    private void deleteFromFireStore(int position) {
-        Task task = list.get(position);
-        FirebaseFirestore.getInstance()
-                .collection("tasks")
-                .document(task.getDocId())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, "Item is deleted", Toast.LENGTH_SHORT).show();
-                        list.remove(task);
-                        notifyItemChanged(position);
-                    }
-                });
     }
 
     @Override
@@ -97,8 +54,23 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         return list.size();
     }
 
+    public void removeItem(int position){
+        list.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public Task getItem(int position){
+        return list.get(position);
+    }
+
+    public void setItem(int pos, Task task){
+        list.set(pos, task);
+        notifyItemChanged(pos);
+    }
+
     public void addItems(List<Task> tasks){
         App.getAppDatabase().taskDao().getAll();
+        list.clear();
         list.addAll(tasks);
         notifyDataSetChanged();
     }
@@ -115,6 +87,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.textTitle);
+
+            itemView.setOnLongClickListener(v -> {
+                listener.onLongClick(getAdapterPosition());
+                return true;
+            });
+            itemView.setOnClickListener(v->{
+                listener.onClick(getAdapterPosition());
+            });
         }
 
         public void onBind(Task task) {

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,11 +36,14 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     private RecyclerView rv;
     private TaskAdapter adapter;
     private AlertDialog.Builder dialog;
+    private int pos;
+    private Task task;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        adapter = new TaskAdapter(requireContext());
+        adapter = new TaskAdapter();
         dialog = new AlertDialog.Builder(requireContext());
     }
 
@@ -58,17 +62,18 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(v ->{
-            openTaskFragment();
+            pos = -1;
+            openTaskFragment(null);
         });
         getParentFragmentManager().setFragmentResultListener("task", getViewLifecycleOwner(), new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                Task task = (Task) result.getSerializable("task");
-                adapter.addItem(task);
-
+                task = (Task) result.getSerializable("task");
+                if (pos == -1) {
+                    adapter.addItem(task);
+                } else adapter.setItem(pos, task);
             }
         });
-
     }
 
     private void roomInit() {
@@ -86,19 +91,37 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         adapter.setListener(this);
     }
 
-    private void openTaskFragment() {
+    private void openTaskFragment(Task task) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("task", task);
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(R.id.taskFragment);
+        navController.navigate(R.id.taskFragment, bundle);
     }
 
     @Override
-    public void onClick(Task position) {
-
+    public void onClick(int position) {
+        pos = position;
+        task = adapter.getItem(position);
+        openTaskFragment(task);
     }
 
     @Override
-    public void onLongClick(Task position) {
-        dialog.show().dismiss();
+    public void onLongClick(int position) {
+        alert(position);
+    }
+
+    private void alert(int position) {
+        dialog.setTitle("WARNING")
+                .setMessage("Do you want to delete?")
+                .setPositiveButton("Yes", (dialog1, which) -> {
+                    task = adapter.getItem(position);
+                    App.getAppDatabase().taskDao().delete(task);
+                    adapter.removeItem(position);
+                    Toast.makeText(requireContext(), "Item is Deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("No", (dialog1, which) -> {
+                    dialog1.cancel();
+                }).show().dismiss();
     }
 
     @Override
@@ -112,7 +135,6 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         switch (item.getItemId()){
             case R.id.sort:
                 sortList();
-                return true;
             default: return super.onOptionsItemSelected(item);
         }
     }
