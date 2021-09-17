@@ -17,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.geek.android2_1_taskapp.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -39,6 +41,7 @@ import static android.content.ContentValues.TAG;
 public class AuthFragment extends Fragment {
 
     private GoogleSignInClient client;
+    private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,10 +53,15 @@ public class AuthFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        LottieAnimationView image = view.findViewById(R.id.authAnim);
+        image.setAnimation(R.raw.authenticationappanimation);
+        progressBar = view.findViewById(R.id.authProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         initGoogle();
         Button btnGoogle = view.findViewById(R.id.btnGoogle);
         btnGoogle.setOnClickListener(v->{
             googleSignIn();
+            progressBar.setVisibility(View.VISIBLE);
         });
     }
 

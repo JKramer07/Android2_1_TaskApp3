@@ -13,7 +13,7 @@
         app:lottie_rawRes="@raw/onboardingaccount1"
         android:layout_marginTop="60dp"
         android:layout_centerHorizontal="true"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="300dp"/>
 
     <TextView

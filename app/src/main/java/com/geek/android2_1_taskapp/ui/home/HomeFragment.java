@@ -74,8 +74,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     private void roomInit() {
         App.getAppDatabase().taskDao().getAll().observe(getViewLifecycleOwner(), new Observer<List<Task>>() {
             @Override
-            public void onChanged(List<Task> tasks) {
-                initList(tasks);
+            public void onChanged(List<Task> list) {
+                initList(list);
             }
         });
     }
@@ -112,6 +112,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         switch (item.getItemId()){
             case R.id.sort:
                 sortList();
+                return true;
             default: return super.onOptionsItemSelected(item);
         }
     }
@@ -120,7 +121,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         App.getAppDatabase().taskDao().getAllByText().observe(getViewLifecycleOwner(), new Observer<List<Task>>() {
             @Override
             public void onChanged(List<Task> tasks) {
-                adapter.sortList((ArrayList<Task>) tasks);
+                adapter.notifyDataSetChanged();
+                initList(tasks);
             }
         });
     }

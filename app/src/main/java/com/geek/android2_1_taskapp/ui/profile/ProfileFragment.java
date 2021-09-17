@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.geek.android2_1_taskapp.App;
@@ -37,7 +38,10 @@ import com.geek.android2_1_taskapp.models.Task;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -51,7 +55,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = new Prefs(requireContext());
+//        prefs = new Prefs(requireContext());
     }
 
     @Override
@@ -68,6 +72,12 @@ public class ProfileFragment extends Fragment {
         username = view.findViewById(R.id.etUsername);
         logOut = view.findViewById(R.id.btnLogout);
         signOut();
+
+        String text = username.getText().toString();
+        Task utask = new Task(text);
+        App.getAppDatabase().taskDao().insert(utask);
+        saveNameToFireStore(utask);
+
 
 //        image.setImageURI(prefs.getProfileImage());
 //        username.setText(prefs.getUsername());
@@ -95,6 +105,23 @@ public class ProfileFragment extends Fragment {
         });
 
 
+    }
+
+    private void saveNameToFireStore(Task utask) {
+        FirebaseFirestore.getInstance()
+                .collection("profileUsers")
+                .add(utask)
+                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentReference> task) {
+                        if (task.isComplete()){
+                            Toast.makeText(requireContext(), "The name was saved", Toast.LENGTH_SHORT).show();
+                        }else{
+                            task.getException().printStackTrace();
+                            Toast.makeText(requireContext(), "Error: "+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
